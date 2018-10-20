@@ -1,5 +1,6 @@
 import json
 import requests
+import sys
 import yaml
 
 config = yaml.load(open("config.yaml"))
@@ -38,5 +39,5 @@ def printGames(games):
         print('[' + name + '] - [' + date + ']')
 
 
-results = searchGames("Red Dead")
+results = searchGames(sys.argv[1])
 printGames(results)
