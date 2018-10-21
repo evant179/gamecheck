@@ -1,16 +1,14 @@
 import json
 import requests
+import os
 import sys
-import yaml
 
-config = yaml.load(open("config.yaml"))
-apiKey = config['apiKey']
-
+apiKey = os.environ['GIANT_BOMB_API_KEY']
 
 def searchGames(name):
     url = 'https://www.giantbomb.com/api/search'
     headers = {'user-agent': 'test-script'}
-    fieldList = 'name,expected_release_day,expected_release_month,expected_release_year'
+    fieldList = 'name,expected_release_day,expected_release_month,expected_release_year,original_release_date'
     payload = {
         'api_key': apiKey,
         'format': 'json',
