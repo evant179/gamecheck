@@ -1,7 +1,6 @@
 import json
 import requests
 import os
-import sys
 
 apiKey = os.environ['GIANT_BOMB_API_KEY']
 
@@ -30,7 +29,8 @@ def searchGames(name):
 
     # response comes back as str. convert to dict
     response = json.loads(r.text)
-    print(json.dumps(response, indent=2))  # pretty print json string
+    # print(json.dumps(response, indent=2))  # pretty print json string
+    print(json.dumps(response))
     return response['results']
 
 
@@ -45,3 +45,7 @@ def printGames(games):
             'expected_release_year']
         date = str(month) + '/' + str(day) + '/' + str(year)
         print('[' + name + '] - [' + date + ']')
+
+
+if __name__ == "__main__":
+    processGameCheck('', '')

@@ -1,5 +1,13 @@
 service: service-gamecheck
 
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    # dockerizePip: non-linux
+    usePipenv: true
+
 provider:
   name: aws
   runtime: python3.7

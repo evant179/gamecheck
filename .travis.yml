@@ -6,4 +6,6 @@ node_js:
 script:
   # deploy service to lambda
   - npm install -g serverless
+  - npm install
+  - ls -R
   - sls deploy
