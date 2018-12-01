@@ -5,26 +5,32 @@ import sys
 
 apiKey = os.environ['GIANT_BOMB_API_KEY']
 
+
 def processGameCheck(event, context):
-    results = searchGames(sys.argv[1])
-    printGames(results)
+    results = searchGames('super mario')
+    # printGames(results)
+
 
 def searchGames(name):
-    url = 'https://www.giantbomb.com/api/search'
-    headers = {'user-agent': 'test-script'}
-    fieldList = 'name,expected_release_day,expected_release_month,expected_release_year,original_release_date'
+    url = 'https://www.giantbomb.com/api/releases'
+    headers = {'user-agent': 'lambda-function'}
+    fieldList = 'name,expected_release_day,expected_release_month,expected_release_year,release_date,platform'
+    filter = 'release_date:2018-12-15 00:00:00|2018-12-31 00:00:00'
+    sort = 'release_date:asc'
     payload = {
         'api_key': apiKey,
         'format': 'json',
         'query': name,
         'resources': 'game',
-        'field_list': fieldList
+        'field_list': fieldList,
+        'filter': filter,
+        'sort': sort
     }
     r = requests.get(url, headers=headers, params=payload)
 
-    response = json.loads(
-        r.text)  # response comes back as str. convert to dict
-    # print(json.dumps(response, indent=2)) # pretty print json string
+    # response comes back as str. convert to dict
+    response = json.loads(r.text)
+    print(json.dumps(response, indent=2))  # pretty print json string
     return response['results']
 
 
