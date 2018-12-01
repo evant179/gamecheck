@@ -5,6 +5,10 @@ import sys
 
 apiKey = os.environ['GIANT_BOMB_API_KEY']
 
+def processGameCheck(event, context):
+    results = searchGames(sys.argv[1])
+    printGames(results)
+
 def searchGames(name):
     url = 'https://www.giantbomb.com/api/search'
     headers = {'user-agent': 'test-script'}
@@ -35,7 +39,3 @@ def printGames(games):
             'expected_release_year']
         date = str(month) + '/' + str(day) + '/' + str(year)
         print('[' + name + '] - [' + date + ']')
-
-
-results = searchGames(sys.argv[1])
-printGames(results)
