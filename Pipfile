@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 requests = "*"
-twilio = "*"
 
 [dev-packages]
 rope = "*"
