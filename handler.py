@@ -16,6 +16,8 @@ def processGameCheck(event, context):
     print(f'Query for games between [{startDate}] and [{endDate}]')
     games = searchGames(startDate, endDate)
     convertedGames = processGames(games)
+    print(f'Converted games: {convertedGames}')
+
 
 
 def searchGames(startDate, endDate):
@@ -61,8 +63,7 @@ def processGames(games):
         gameInfo = f'{releaseDate:%D} | {name} | {platformName}'
         convertedGames.add(gameInfo)
 
-    print(f'Converted games: {convertedGames}')
-    return convertedGames
+    return sorted(convertedGames)
 
 
 if __name__ == "__main__":
