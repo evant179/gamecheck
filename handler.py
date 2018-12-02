@@ -14,8 +14,8 @@ def processGameCheck(event, context):
     endDate = currentDate + endTimeDelta
 
     print(f'Query for games between [{startDate}] and [{endDate}]')
-    results = searchGames(startDate, endDate)
-    # printGames(results)
+    games = searchGames(startDate, endDate)
+    convertedGames = processGames(games)
 
 
 def searchGames(startDate, endDate):
@@ -42,17 +42,37 @@ def searchGames(startDate, endDate):
     return response['results']
 
 
-def printGames(games):
+def processGames(games):
+    convertedGames = []
+
     for game in games:
         name = game['name']
-        month = 'NA' if not game['expected_release_month'] else game[
-            'expected_release_month']
-        day = 'NA' if not game['expected_release_day'] else game[
-            'expected_release_day']
-        year = 'NA' if not game['expected_release_year'] else game[
-            'expected_release_year']
-        date = str(month) + '/' + str(day) + '/' + str(year)
-        print('[' + name + '] - [' + date + ']')
+        releaseYear = game['expected_release_year']
+        releaseMonth = game['expected_release_month']
+        releaseDay = game['expected_release_day']
+        platform = game['platform']
+        platformName = platform['name']
+
+        if any(v is None for v in [releaseYear, releaseMonth, releaseDay]):
+            print(f'Skip game: {name}')
+            continue
+
+        releaseDate = date(releaseYear, releaseMonth, releaseDay)
+        gameInfo = f'{releaseDate:%D} | {name} | {platformName}'
+        convertedGames.append(gameInfo)
+
+        # name = game['name']
+        # month = 'NA' if not game['expected_release_month'] else game[
+        #     'expected_release_month']
+        # day = 'NA' if not game['expected_release_day'] else game[
+        #     'expected_release_day']
+        # year = 'NA' if not game['expected_release_year'] else game[
+        #     'expected_release_year']
+        # date = str(month) + '/' + str(day) + '/' + str(year)
+        # print('[' + name + '] - [' + date + ']')
+
+    print(f'Converted games: {convertedGames}')
+    return convertedGames
 
 
 if __name__ == "__main__":
