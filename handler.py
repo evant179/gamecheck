@@ -1,30 +1,38 @@
+from datetime import date, timedelta
 import json
-import requests
 import os
+import requests
 
 apiKey = os.environ['GIANT_BOMB_API_KEY']
+startTimeDelta = timedelta(days=1)
+endTimeDelta = timedelta(days=7)
 
 
 def processGameCheck(event, context):
-    results = searchGames('super mario')
+    currentDate = date.today()
+    startDate = currentDate + startTimeDelta
+    endDate = currentDate + endTimeDelta
+
+    print(f'Query for games between [{startDate}] and [{endDate}]')
+    results = searchGames(startDate, endDate)
     # printGames(results)
 
 
-def searchGames(name):
+def searchGames(startDate, endDate):
     url = 'https://www.giantbomb.com/api/releases'
     headers = {'user-agent': 'lambda-function'}
     fieldList = 'name,expected_release_day,expected_release_month,expected_release_year,release_date,platform'
-    filter = 'release_date:2018-12-15 00:00:00|2018-12-31 00:00:00'
+    filter = f'release_date:{startDate:%Y-%m-%d}|{endDate:%Y-%m-%d}'
     sort = 'release_date:asc'
     payload = {
         'api_key': apiKey,
         'format': 'json',
-        'query': name,
-        'resources': 'game',
         'field_list': fieldList,
         'filter': filter,
         'sort': sort
     }
+
+    print(f'Request payload: {payload}')
     r = requests.get(url, headers=headers, params=payload)
 
     # response comes back as str. convert to dict
