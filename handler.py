@@ -43,7 +43,7 @@ def searchGames(startDate, endDate):
 
 
 def processGames(games):
-    convertedGames = []
+    convertedGames = set()
 
     for game in games:
         name = game['name']
@@ -59,17 +59,7 @@ def processGames(games):
 
         releaseDate = date(releaseYear, releaseMonth, releaseDay)
         gameInfo = f'{releaseDate:%D} | {name} | {platformName}'
-        convertedGames.append(gameInfo)
-
-        # name = game['name']
-        # month = 'NA' if not game['expected_release_month'] else game[
-        #     'expected_release_month']
-        # day = 'NA' if not game['expected_release_day'] else game[
-        #     'expected_release_day']
-        # year = 'NA' if not game['expected_release_year'] else game[
-        #     'expected_release_year']
-        # date = str(month) + '/' + str(day) + '/' + str(year)
-        # print('[' + name + '] - [' + date + ']')
+        convertedGames.add(gameInfo)
 
     print(f'Converted games: {convertedGames}')
     return convertedGames
