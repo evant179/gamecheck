@@ -5,12 +5,14 @@ python: "3.7"
 
 install:
   - pip install pipenv
+  - pipenv install
   - nvm install 8.11.1
   - nvm list
   - npm install -g serverless
   - npm install
 
 script:
+  - pytest
   # deploy service to lambda
   - ls -R
   - sls deploy
