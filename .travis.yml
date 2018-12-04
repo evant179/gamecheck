@@ -12,7 +12,8 @@ install:
   - npm install
 
 script:
-  - pytest -v
-  # deploy service to lambda
+  # unit tests
+  - pipenv run pytest -v
   - ls -R
+  # deploy service to lambda
   - sls deploy
