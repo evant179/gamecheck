@@ -3,44 +3,45 @@ import json
 import os
 import requests
 
-apiKey = os.environ['GIANT_BOMB_API_KEY']
-pastebin_api_key = os.environ['PASTEBIN_API_KEY']
-account_sid = os.environ['TWILIO_ACCOUNT_SID']
-auth_token = os.environ['TWILIO_AUTH_TOKEN']
-from_phone_number = os.environ['TWILIO_PHONE_NUMBER']
-target_phone_numbers = os.environ['TARGET_PHONE_NUMBERS']
-startTimeDelta = timedelta(days=1)
-endTimeDelta = timedelta(days=7)
+GIANT_BOMB_API_KEY = os.environ['GIANT_BOMB_API_KEY']
+PASTEBIN_API_KEY = os.environ['PASTEBIN_API_KEY']
+TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
+TWILIO_PHONE_NUMBER = os.environ['TWILIO_PHONE_NUMBER']
+TARGET_PHONE_NUMBERS = os.environ['TARGET_PHONE_NUMBERS']
+
+START_TIME_DELTA = timedelta(days=1)
+END_TIME_DELTA = timedelta(days=7)
 
 
-def processGameCheck(event, context):
-    currentDate = date.today()
-    startDate = currentDate + startTimeDelta
-    endDate = currentDate + endTimeDelta
+def process_game_check(event, context):
+    current_date = date.today()
+    start_date = current_date + START_TIME_DELTA
+    end_date = current_date + END_TIME_DELTA
 
-    print(f'Query for games between [{startDate}] and [{endDate}]')
-    games = searchGames(startDate, endDate)
-    convertedGames = processGames(games)
-    body = createSmsBody(convertedGames)
+    print(f'Query for games between [{start_date}] and [{end_date}]')
+    games = search_games(start_date, end_date)
+    converted_games = process_games(games)
+    body = create_sms_body(converted_games)
 
-    numbers = target_phone_numbers.split(',')
+    numbers = TARGET_PHONE_NUMBERS.split(',')
     for number in numbers:
         try:
-            sendSmsMessage(body, number)
+            send_sms_message(body, number)
         except Exception as e:
             print(e)
 
 
-def searchGames(startDate, endDate):
+def search_games(start_date, end_date):
     url = 'https://www.giantbomb.com/api/releases'
     headers = {'user-agent': 'lambda-function'}
-    fieldList = 'name,expected_release_day,expected_release_month,expected_release_year,release_date,platform'
-    filter = f'release_date:{startDate:%Y-%m-%d}|{endDate:%Y-%m-%d}'
+    field_list = 'name,expected_release_day,expected_release_month,expected_release_year,release_date,platform'
+    filter = f'release_date:{start_date:%Y-%m-%d}|{end_date:%Y-%m-%d}'
     sort = 'release_date:asc'
     payload = {
-        'api_key': apiKey,
+        'api_key': GIANT_BOMB_API_KEY,
         'format': 'json',
-        'field_list': fieldList,
+        'field_list': field_list,
         'filter': filter,
         'sort': sort
     }
@@ -55,45 +56,45 @@ def searchGames(startDate, endDate):
     return response['results']
 
 
-def processGames(games):
-    convertedGames = set()
+def process_games(games):
+    converted_games = set()
 
     for game in games:
         name = game['name']
-        releaseYear = game['expected_release_year']
-        releaseMonth = game['expected_release_month']
-        releaseDay = game['expected_release_day']
+        release_year = game['expected_release_year']
+        release_month = game['expected_release_month']
+        release_day = game['expected_release_day']
         platform = game['platform']
-        platformName = platform['name']
+        platform_name = platform['name']
 
-        if any(v is None for v in [releaseYear, releaseMonth, releaseDay]):
+        if any(v is None for v in [release_year, release_month, release_day]):
             print(f'Skip game: {name}')
             continue
 
-        releaseDate = date(releaseYear, releaseMonth, releaseDay)
-        gameInfo = f'{releaseDate:%D} | {name} | {platformName}'
-        convertedGames.add(gameInfo)
+        release_date = date(release_year, release_month, release_day)
+        game_info = f'{release_date:%D} | {name} | {platform_name}'
+        converted_games.add(game_info)
 
-    return sorted(convertedGames)
+    return sorted(converted_games)
 
 
-def createSmsBody(convertedGames):
+def create_sms_body(converted_games):
     text = ''
-    for g in convertedGames:
-        text += f'{g}\n'
+    for game in converted_games:
+        text += f'{game}\n'
     print(text)
-    pasteBinLink = createPastebin(text)
-    print(pasteBinLink)
+    pastebin_link = create_pastebin(text)
+    print(pastebin_link)
 
-    rawLink = transformToRawPastbinLink(pasteBinLink)
-    body = f"Here are this week's video game releases!\n{rawLink}"
+    raw_link = transform_to_raw_pastbin_link(pastebin_link)
+    body = f"Here are this week's video game releases!\n{raw_link}"
     return body
 
 
-def createPastebin(text):
+def create_pastebin(text):
     url = 'https://pastebin.com/api/api_post.php'
     data = {
-        'api_dev_key': pastebin_api_key,
+        'api_dev_key': PASTEBIN_API_KEY,
         'api_option': 'paste',
         'api_paste_code': text
     }
@@ -102,20 +103,25 @@ def createPastebin(text):
     return response.text
 
 
-def transformToRawPastbinLink(link):
+def transform_to_raw_pastbin_link(link):
     index = link.find('m/')
     index += 1
-    rawLink = link[:index] + '/raw' + link[index:]
-    print(rawLink)
-    return rawLink
+    raw_link = link[:index] + '/raw' + link[index:]
+    print(raw_link)
+    return raw_link
 
 
-def sendSmsMessage(body, targetPhoneNumber):
-    url = f'https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json'
-    data = {'From': from_phone_number, 'To': targetPhoneNumber, 'Body': body}
-    response = requests.post(url, data=data, auth=(account_sid, auth_token))
+def send_sms_message(body, target_phone_number):
+    url = f'https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json'
+    data = {
+        'From': TWILIO_PHONE_NUMBER,
+        'To': target_phone_number,
+        'Body': body
+    }
+    response = requests.post(
+        url, data=data, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
     print(response)
 
 
 if __name__ == "__main__":
-    processGameCheck('', '')
+    process_game_check('', '')

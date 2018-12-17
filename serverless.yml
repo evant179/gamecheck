@@ -16,7 +16,7 @@ provider:
 
 functions:
   gamecheck:
-    handler: handler.processGameCheck
+    handler: handler.process_game_check
     environment:
       GIANT_BOMB_API_KEY: ${env:GIANT_BOMB_API_KEY}
       PASTEBIN_API_KEY: ${env:PASTEBIN_API_KEY}
